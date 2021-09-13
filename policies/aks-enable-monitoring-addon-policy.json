@@ -33,12 +33,27 @@
 								},
 								"clusterLocation": {
 									"type": "string"
+								}
+							},
+							"variables": {
+								"region": {
+									"US": [
+										"eastus2",
+										"centralus"
+									],
+									"APAC": [
+										"southeastasia"
+									],
+									"EU": [
+										"westeurope",
+										"northeurope"
+									]
 								},
-								"clusterTags": {
-									"type": "object"
-								},
-								"workspaceResourceId": {
-									"type": "string"
+								"laWorkspaceId": {
+									"US": "/subscriptions/5c8f3e12-757e-4183-a8d0-80effb7bf97f/resourcegroups/saty-public-rg/providers/microsoft.operationalinsights/workspaces/saty-public-la",
+									"APAC": "/subscriptions/5c8f3e12-757e-4183-a8d0-80effb7bf97f/resourcegroups/saty-public-rg/providers/microsoft.operationalinsights/workspaces/saty-apac-la",
+									"EU": "/subscriptions/5c8f3e12-757e-4183-a8d0-80effb7bf97f/resourcegroups/saty-public-rg/providers/microsoft.operationalinsights/workspaces/saty-eu-la",
+									"CH": "/subscriptions/5c8f3e12-757e-4183-a8d0-80effb7bf97f/resourcegroups/saty-public-rg/providers/microsoft.operationalinsights/workspaces/saty-public-la"
 								}
 							},
 							"resources": [
@@ -58,7 +73,6 @@
 													"name": "[parameters('clusterName')]",
 													"type": "Microsoft.ContainerService/managedClusters",
 													"location": "[parameters('clusterLocation')]",
-													"tags": "[parameters('clusterTags')]",
 													"apiVersion": "2018-03-31",
 													"properties": {
 														"mode": "Incremental",
@@ -67,7 +81,7 @@
 															"omsagent": {
 																"enabled": true,
 																"config": {
-																	"logAnalyticsWorkspaceResourceID": "[parameters('workspaceResourceId')]"
+																	"logAnalyticsWorkspaceResourceID": "[if(contains(variables('region').US, toLower(parameters('clusterLocation'))), variables('laWorkspaceId').US, if(contains(variables('region').APAC, toLower(parameters('clusterLocation'))), variables('laWorkspaceId').APAC, if(contains(variables('region').EU, toLower(parameters('clusterLocation'))), variables('laWorkspaceId').EU, variables('laWorkspaceId').CH)))]"
 																}
 															}
 														}
@@ -88,25 +102,10 @@
 							},
 							"clusterLocation": {
 								"value": "[field('location')]"
-							},
-							"clusterTags": {
-								"value": "[field('tags')]"
-							},
-							"workspaceResourceId": {
-								"value": "[parameters('workspaceResourceId')]"
 							}
 						}
 					}
 				}
-			}
-		}
-	},
-	"parameters": {
-		"workspaceResourceId": {
-			"type": "String",
-			"metadata": {
-				"displayName": "Resource Id of the existing Azure Log Analytics Workspace",
-				"description": "Azure Monitor Log Analytics Resource ID"
 			}
 		}
 	}
