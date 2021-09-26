@@ -1,0 +1,45 @@
+{
+    "mode": "Indexed",
+    "policyRule": {
+        "if": {
+            "allOf": [
+                {
+                    "field": "type",
+                    "equals": "Microsoft.ContainerService/managedClusters"
+                },
+                {
+                    "field": "Microsoft.ContainerService/managedClusters/aadProfile.managed",
+                    "equals": true
+                },
+                {
+                    "field": "Microsoft.ContainerService/managedClusters/aadProfile.adminGroupObjectIDs",
+                    "exists": false
+                }
+            ]
+        },
+        "then": {
+            "effect": "modify",
+            "details": {
+                "roleDefinitionIds": [
+                    "/providers/Microsoft.Authorization/roleDefinitions/ed7f3fbd-7b88-4dd4-9017-9adb7ce333f8"
+                ],
+                "operations": [
+                    {
+                        "operation": "addOrReplace",
+                        "field": "Microsoft.ContainerService/managedClusters/aadProfile.adminGroupObjectIDs[*]",
+                        "value": "[createArray(parameters('adminGroupObjectID'))]"
+                    }
+                ]
+            }
+        }
+    },
+    "parameters": {
+        "adminGroupObjectID": {
+            "type": "String",
+            "metadata": {
+                "displayName": "AKS Administrator Group Object ID",
+                "description": "Object Id of the existing AKS Administrator Group"
+            }
+        }
+    }
+}
