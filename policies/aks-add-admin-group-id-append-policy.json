@@ -1,0 +1,39 @@
+{
+    "mode": "Indexed",
+    "policyRule": {
+        "if": {
+            "allOf": [
+                {
+                    "field": "type",
+                    "equals": "Microsoft.ContainerService/managedClusters"
+                },
+                {
+                    "field": "Microsoft.ContainerService/managedClusters/aadProfile.managed",
+                    "equals": true
+                },
+                {
+                    "field": "Microsoft.ContainerService/managedClusters/aadProfile.adminGroupObjectIDs",
+                    "exits": false
+                }
+            ]
+        },
+        "then": {
+            "effect": "append",
+            "details": [
+                {
+                    "field": "Microsoft.ContainerService/managedClusters/aadProfile.adminGroupObjectIDs[*]",
+                    "value": "[parameters('adminGroupObjectID')]"
+                }
+            ]
+        }
+    },
+    "parameters": {
+        "adminGroupObjectID": {
+            "type": "String",
+            "metadata": {
+                "displayName": "AKS Administrator Group Object ID",
+                "description": "Object Id of the existing AKS Administrator Group"
+            }
+        }
+    }
+}
